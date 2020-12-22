@@ -1,0 +1,20 @@
+{
+    "data":{
+        "timelines":[
+            {
+                "timestep":"1d",
+                "startTime":"2020-12-21T06:00:00Z",
+                "endTime":"2020-12-24T06:00:00Z",
+                "intervals":[
+                    {
+                        "startTime":"2020-12-21T06:00:00Z",
+                        "values":{
+                            "temperatureMaxTime":"2020-12-21T20:01:40Z",
+                            "temperatureMinTime":"2020-12-22T00:00:00Z"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

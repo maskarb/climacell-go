@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	var c *climacell.Client
+	var c *climacell.ClientV3
 	c = climacell.New(os.Getenv("CLIMACELL_API_KEY"))
 
 	weatherSamples, err := c.HistoricalClimaCell(climacell.ForecastArgs{

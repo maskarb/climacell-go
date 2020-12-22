@@ -1,6 +1,8 @@
 package climacell
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,9 +12,89 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Client is the client for sending HTTP requests to ClimaCell's HTTP
+const (
+	BaseURLV4 = "https://data.climacell.co/v4"
+)
+
+type ClientV4 struct {
+	BaseURL    string
+	apiKey     string
+	HTTPClient *http.Client
+}
+
+func NewClient(apiKey string) *ClientV4 {
+	return &ClientV4{
+		BaseURL: BaseURLV4,
+		apiKey:  apiKey,
+		HTTPClient: &http.Client{
+			Timeout: time.Minute,
+		},
+	}
+}
+
+func (c *ClientV4) GetTimelines(ctx context.Context, options *TimelineListOptions) (*TimelineList, error) {
+
+	jsonValue, err := json.Marshal(options)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to construct body for call to create a Source with the Sources API: %v.", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/timelines?apikey=%s", c.BaseURL, c.apiKey), bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return nil, err
+	}
+
+	res := TimelineList{}
+	if err := c.sendRequest(req, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func (c *ClientV4) sendRequest(req *http.Request, v interface{}) error {
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("Accept", "application/json; charset=utf-8")
+
+	res, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusBadRequest {
+		var errRes errorResponse
+		if err = json.NewDecoder(res.Body).Decode(&errRes); err == nil {
+			return errors.New(errRes.Message)
+		}
+
+		return fmt.Errorf("unknown error, status code: %d", res.StatusCode)
+	}
+
+	fullResponse := successResponse{
+		Data: v,
+	}
+	if err = json.NewDecoder(res.Body).Decode(&fullResponse); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type errorResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+type successResponse struct {
+	Code int         `json:"code"`
+	Data interface{} `json:"data"`
+}
+
+// ClientV3 is the client for sending HTTP requests to ClimaCell's HTTP
 // endpoints.
-type Client struct {
+type ClientV3 struct {
 	// the base URL to send requests to. In regular usage, this is
 	// https://api.climacell.co/v3, but in test coverage this can be set to
 	// the URL for a mock API server.
@@ -35,15 +117,15 @@ func newDefaultHTTPClient() *http.Client { return &http.Client{Timeout: time.Min
 // WARNING: DO NOT share your API key with anyone; if someone else gains access
 // to it, they can make requests to the API under your identity. Because of
 // this, it is ill-advised to have the key directly in your source code.
-func New(apiKey string) *Client { return NewWithClient(apiKey, newDefaultHTTPClient()) }
+func New(apiKey string) *ClientV3 { return NewWithClient(apiKey, newDefaultHTTPClient()) }
 
 // NewWithClient takes in a ClimaCell API key and a net/http Client and returns
 // a client for the ClimaCell API.
 // WARNING: DO NOT share your API key with anyone; if someone else gains access
 // to it, they can make requests to the API under your identity. Because of
 // this, it is ill-advised to have the key directly in your source code.
-func NewWithClient(apiKey string, c *http.Client) *Client {
-	return &Client{
+func NewWithClient(apiKey string, c *http.Client) *ClientV3 {
+	return &ClientV3{
 		baseURL: "https://api.climacell.co/v3/",
 		apiKey:  apiKey,
 		c:       c,
@@ -64,7 +146,7 @@ func NewWithClient(apiKey string, c *http.Client) *Client {
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) Nowcast(args ForecastArgs) ([]NowCastForecast, error) {
+func (c *ClientV3) Nowcast(args ForecastArgs) ([]NowCastForecast, error) {
 	var w []NowCastForecast
 	if err := c.getWeatherSamples("weather/nowcast", args, &w); err != nil {
 		return nil, err
@@ -82,7 +164,7 @@ func (c *Client) Nowcast(args ForecastArgs) ([]NowCastForecast, error) {
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) HourlyForecast(args ForecastArgs) ([]HourlyForecast, error) {
+func (c *ClientV3) HourlyForecast(args ForecastArgs) ([]HourlyForecast, error) {
 	var w []HourlyForecast
 	if err := c.getWeatherSamples("weather/forecast/hourly", args, &w); err != nil {
 		return nil, err
@@ -100,7 +182,7 @@ func (c *Client) HourlyForecast(args ForecastArgs) ([]HourlyForecast, error) {
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) DailyForecast(args ForecastArgs) ([]ForecastDay, error) {
+func (c *ClientV3) DailyForecast(args ForecastArgs) ([]ForecastDay, error) {
 	var f []ForecastDay
 	if err := c.getWeatherSamples("weather/forecast/daily", args, &f); err != nil {
 		return nil, err
@@ -118,7 +200,7 @@ func (c *Client) DailyForecast(args ForecastArgs) ([]ForecastDay, error) {
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) HistoricalStation(args ForecastArgs) ([]HistoricalStation, error) {
+func (c *ClientV3) HistoricalStation(args ForecastArgs) ([]HistoricalStation, error) {
 	var f []HistoricalStation
 	if err := c.getWeatherSamples("weather/historical/station", args, &f); err != nil {
 		return nil, err
@@ -136,7 +218,7 @@ func (c *Client) HistoricalStation(args ForecastArgs) ([]HistoricalStation, erro
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) HistoricalClimaCell(args ForecastArgs) ([]HistoricalClimaCell, error) {
+func (c *ClientV3) HistoricalClimaCell(args ForecastArgs) ([]HistoricalClimaCell, error) {
 	var f []HistoricalClimaCell
 	if err := c.getWeatherSamples("weather/historical/climacell", args, &f); err != nil {
 		return nil, err
@@ -153,7 +235,7 @@ func (c *Client) HistoricalClimaCell(args ForecastArgs) ([]HistoricalClimaCell, 
 // the original error, you need to call pkg/errors.Cause(). These errors are
 // things such as errors sending the request to the API, or unexpected errors
 // deserializing responses.
-func (c *Client) RealTime(args ForecastArgs) (RealTime, error) {
+func (c *ClientV3) RealTime(args ForecastArgs) (RealTime, error) {
 	var f RealTime
 	if err := c.getWeatherSamples("weather/realtime", args, &f); err != nil {
 		return RealTime{}, err
@@ -161,7 +243,7 @@ func (c *Client) RealTime(args ForecastArgs) (RealTime, error) {
 	return f, nil
 }
 
-func (c *Client) getWeatherSamples(
+func (c *ClientV3) getWeatherSamples(
 	endpt string,
 	args ForecastArgs,
 	expectedResponse interface{},

@@ -1,14 +1,15 @@
 package main
 
 import (
-	"github.com/andyhaskell/climacell-go"
 	"log"
 	"os"
 	"time"
+
+	"github.com/andyhaskell/climacell-go"
 )
 
 func main() {
-	var c *climacell.Client
+	var c *climacell.ClientV3
 	c = climacell.New(os.Getenv("CLIMACELL_API_KEY"))
 
 	weatherSamples, err := c.HistoricalStation(climacell.ForecastArgs{

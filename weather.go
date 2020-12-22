@@ -39,59 +39,87 @@ type BaseResponseType struct {
 // /* work with the retrieved temp value */
 type WeatherType struct {
 	// The temperature for this weather sample.
-	Temp *FloatValue `json:"temp,omitempty"`
+	Temp *FloatValue `json:"temperature,omitempty"`
 	// The temperature it feels like for this weather sample, based on wind
 	// chill and heat window.
-	FeelsLike *FloatValue `json:"feels_like,omitempty"`
+	FeelsLike *FloatValue `json:"temperatureApparent,omitempty"`
 	// The temperature of the dew point for this weather sample.
-	DewPoint *FloatValue `json:"dewpoint,omitempty"`
+	DewPoint *FloatValue `json:"dewPoint,omitempty"`
 	// The percent relative humidity for this weather sample.
 	Humidity *FloatValue `json:"humidity,omitempty"`
 	// The wind speed for this weather sample.
-	WindSpeed *FloatValue `json:"wind_speed,omitempty"`
+	WindSpeed *FloatValue `json:"windSpeed,omitempty"`
 	// The direction of the wind in degrees for this weather sample, where
 	// 0 degrees means the wind is going exactly north.
-	WindDirection *FloatValue `json:"wind_direction,omitempty"`
+	WindDirection *FloatValue `json:"windDirection,omitempty"`
 	// The wind gust speed for this weather sample.
-	WindGust *FloatValue `json:"wind_gust,omitempty"`
-	// The surface barometric pressure for this weather sample.
-	BaroPressure *FloatValue `json:"baro_pressure,omitempty"`
+	WindGust *FloatValue `json:"windGust,omitempty"`
+	// The force exerted against a surface by the weight of the air above the surface (at the surface level).
+	BaroSurfacePressure *FloatValue `json:"pressureSurfaceLevel,omitempty"`
+	// The force exerted against a surface by the weight of the air above the surface (at the mean sea level).
+	BaroSeaPressure *FloatValue `json:"pressureSeaLevel,omitempty"`
 	// The amount of precipitation for this weather sample.
-	Precipitation *FloatValue `json:"precipitation,omitempty"`
-	// The type of precipitation for this weather sample. Values include
-	// "none", "rain", "snow", "ice pellets", and "freezing rain".
-	PrecipitationType *StringValue `json:"precipitation_type,omitempty"`
+	Precipitation *FloatValue `json:"precipitationIntensity,omitempty"`
+	// The various types of precipitation often include the character or phase of the
+	// precipitation which is falling to ground level (Schuur classification).
+	PrecipitationType *StringValue `json:"precipitationType,omitempty"`
 	// When this weather sample is from a forecast, the percent probability
 	// of precipitation.
-	PrecipitationProbability *FloatValue `json:"precipitation_probability,omitempty"`
+	PrecipitationProbability *FloatValue `json:"precipitationProbability,omitempty"`
 	// The sunrise time for this location.
-	Sunrise *TimeValue `json:"sunrise"`
+	Sunrise *TimeValue `json:"sunriseTime"`
 	// The sunset time for this location.
-	Sunset *TimeValue `json:"sunset"`
+	Sunset *TimeValue `json:"sunsetTime"`
+	// The total amount of shortwave radiation received from above by a surface horizontal to the ground.
+	SurfaceShortwaveRadiation *FloatValue `json:"solarGHI,omitempty"`
 	// The visibility distance for this weather sample.
 	Visibility *FloatValue `json:"visibility,omitempty"`
 	// The percent of the sky obscured by clouds for this weather sample.
-	CloudCover *FloatValue `json:"cloud_cover"`
+	CloudCover *FloatValue `json:"cloudCover"`
 	// The lowest height at which there are clouds for this weather sample.
-	CloudBase *FloatValue `json:"cloud_base"`
+	CloudBase *FloatValue `json:"cloudBase"`
 	// The highest height at which there are clouds for this weather
 	// sample.
-	CloudCeiling *FloatValue `json:"cloud_ceiling"`
-	// The amount of solar radiation reaching the surface for this weather
-	// sample.
-	SurfaceShortwaveRadiation *FloatValue `json:"surface_shortwave_radiation"`
-	// The phase of the moon. Values include "new_moon", "waxing_crescent",
-	// "first_quarter", "waxing_gibbous", "full", "waning_gibbous",
-	// "third_quarter", and "waning_crescent"
-	MoonPhase *StringValue `json:"moon_phase"`
-	// A text description of the weather. Possible values include
-	// "freezing_rain_heavy", "freezing_rain", "freezing_rain_light",
-	// "freezing_drizzle", "ice_pellets_heavy", "ice_pellets",
-	// "ice_pellets_light", "snow_heavy", "snow", "snow_light", "flurries",
-	// "tstorm", "rain_heavy", "rain", "rain_light", "drizzle",
-	// "fog_light", "fog", "cloudy", "mostly_cloudy", "partly_cloudy",
-	// "mostly_clear", and "clear".
-	WeatherCode *StringValue `json:"weather_code"`
+	CloudCeiling *FloatValue `json:"cloudCeiling"`
+	// The phase of the moon. Values include:
+	// 0: New (0.0625-0.9375)
+	// 1: Waxing Crescent (0.0625-0.1875)
+	// 2: First Quarter (0.1875-0.3125)
+	// 3: Waxing Gibbous (0.3125-0.4375)
+	// 4: Full (0.4375-0.5625)
+	// 5: Waning Gibbous (0.5625-0.6875)
+	// 6: Third Quarter (0.6875-0.8125)
+	// 7: Waning Crescent (0.8125-0.9375)
+	MoonPhase *StringValue `json:"moonPhase"`
+	// A text description of the weather. Values include:
+	// 0: Unknown
+	// 1000: Clear
+	// 1001: Cloudy
+	// 1100: Mostly Clear
+	// 1101: Partly Cloudy
+	// 1102: Mostly Cloudy
+	// 2000: Fog
+	// 2100: Light Fog
+	// 3000: Light Wind
+	// 3001: Wind
+	// 3002: Strong Wind
+	// 4000: Drizzle
+	// 4001: Rain
+	// 4200: Light Rain
+	// 4201: Heavy Rain
+	// 5000: Snow
+	// 5001: Flurries
+	// 5100: Light Snow
+	// 5101: Heavy Snow
+	// 6000: Freezing Drizzle
+	// 6001: Freezing Rain
+	// 6200: Light Freezing Rain
+	// 6201: Heavy Freezing Rain
+	// 7000: Ice Pellets
+	// 7101: Heavy Ice Pellets
+	// 7102: Light Ice Pellets
+	// 8000: Thunderstorm
+	WeatherCode *StringValue `json:"weatherCode"`
 }
 
 type AirQualityType struct {

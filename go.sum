@@ -1,3 +1,5 @@
+github.com/andyhaskell/climacell-go v0.0.0-20200603023707-a475c6fb1109 h1:u9odYiKXmSrRVNfCrSdOVR1xU9yRcb+NMZm7vGko+lM=
+github.com/andyhaskell/climacell-go v0.0.0-20200603023707-a475c6fb1109/go.mod h1:KRgKBo8JuU8y8MB/jby6fkn2gShbtMq2odfLCORlisY=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
