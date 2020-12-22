@@ -3,16 +3,16 @@ package climacell
 import "time"
 
 type Geometry struct {
-	Type        string        `json:"type"`
-	Coordinates []interface{} `json:"coordinates"`
+	Type        string      `json:"type"`
+	Coordinates interface{} `json:"coordinates"`
 }
 
 type TimelineListOptions struct {
-	location  Geometry
-	fields    []string
-	startTime string
-	endTime   string
-	timeSteps []string
+	Location  Geometry
+	Fields    []string
+	StartTime string
+	EndTime   string
+	TimeSteps []string
 }
 
 type TimelineList struct {
