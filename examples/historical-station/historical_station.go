@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/andyhaskell/climacell-go"
+	"github.com/maskarb/climacell-go"
 )
 
 func main() {

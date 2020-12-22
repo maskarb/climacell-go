@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/andyhaskell/climacell-go"
+	"github.com/maskarb/climacell-go"
 )
 
 func main() {
